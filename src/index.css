@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+/* -----------------------------------------
+   PRINTING
+----------------------------------------- */
+
+@media print {
+  body {
+    background: white !important;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  .printable-photo,
+  .printable-photo * {
+    visibility: visible !important;
+  }
+
+  .printable-photo {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    min-height: 100vh;
+    padding: 20px;
+    background: white !important;
+  }
+
+  .print-header {
+    display: block !important;
+  }
+
+  .printable-photo img {
+    max-height: none !important;
+    max-width: 100% !important;
+    width: auto !important;
+    height: auto !important;
+  }
+
+  @page {
+    margin: 15mm;
+  }
+}
