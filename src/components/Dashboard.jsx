@@ -189,7 +189,14 @@ function Dashboard({ user }) {
       <div className="min-h-screen bg-gray-100">
         <header className="border-b bg-white">
           <div className="mx-auto max-w-7xl px-6 py-6">
-            <h1 className="text-3xl font-bold text-slate-800">TaskCard</h1>
+            <h1 className="text-3xl font-bold text-slate-800">
+              <img
+                src="/taskcard-logo.png"
+                alt="TaskCard"
+                className="h-20 w-auto"
+              />
+              Teacher TaskCard
+            </h1>
 
             <p className="mt-1 text-gray-500">
               Classroom communication made simple.

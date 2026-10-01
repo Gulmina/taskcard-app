@@ -53,7 +53,15 @@ function Login() {
     <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-sm">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-slate-800">TaskCard</h1>
+          <h1 className="text-3xl font-bold text-slate-800">
+            {" "}
+            <img
+              src="/taskcard-logo.png"
+              alt="TaskCard"
+              className="h-20 w-auto"
+            />
+            Teacher TaskCard
+          </h1>
 
           <p className="mt-2 text-slate-500">Sign in to your account</p>
         </div>
