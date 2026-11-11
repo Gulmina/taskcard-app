@@ -3,6 +3,7 @@ import { useState } from "react";
 import {
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
+  sendEmailVerification,
   signOut,
 } from "firebase/auth";
 
@@ -13,12 +14,36 @@ function Login() {
   const [password, setPassword] = useState("");
 
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+
+  function getAuthErrorMessage(error) {
+    if (error.code === "auth/invalid-credential") {
+      return "Incorrect email or password.";
+    }
+
+    if (error.code === "auth/invalid-email") {
+      return "Please enter a valid email address.";
+    }
+
+    if (error.code === "auth/too-many-requests") {
+      return "Too many attempts. Please wait a while and try again.";
+    }
+
+    if (error.code === "auth/operation-not-allowed") {
+      return "Email verification is currently unavailable. Please check your Firebase Authentication settings.";
+    }
+
+    return "Something went wrong. Please try again.";
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
 
     setError("");
+    setSuccess("");
     setLoading(true);
 
     try {
@@ -28,57 +53,87 @@ function Login() {
         password,
       );
 
-      // Refresh the user's Firebase account information
       await userCredential.user.reload();
 
-      // Check whether the email has been verified
       if (!userCredential.user.emailVerified) {
         await signOut(auth);
 
         setError(
-          "Your email is not verified yet. Please check your inbox and click the verification link before signing in.",
+          "Your email is not verified. Please check your inbox or use the Resend Verification Email button below.",
         );
 
         return;
       }
 
-      // Allow verified users to enter the dashboard
       window.location.href = "/";
     } catch (error) {
       console.error("LOGIN ERROR:", error);
-
-      if (
-        error.code === "auth/invalid-credential" ||
-        error.code === "auth/wrong-password" ||
-        error.code === "auth/user-not-found"
-      ) {
-        setError("Incorrect email or password.");
-      } else if (error.code === "auth/invalid-email") {
-        setError("Please enter a valid email address.");
-      } else {
-        setError("Could not sign in. Please try again.");
-      }
+      setError(getAuthErrorMessage(error));
     } finally {
       setLoading(false);
     }
   }
 
+  async function handleResendVerification() {
+    setError("");
+    setSuccess("");
+
+    if (!email.trim() || !password) {
+      setError("Please enter your email address and password first.");
+      return;
+    }
+
+    setResending(true);
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email.trim(),
+        password,
+      );
+
+      await userCredential.user.reload();
+
+      if (userCredential.user.emailVerified) {
+        setSuccess("Your email is already verified. You can sign in now.");
+        return;
+      }
+
+      await sendEmailVerification(userCredential.user);
+
+      setSuccess(
+        "A new verification email has been sent. Please check your inbox and spam folder.",
+      );
+    } catch (error) {
+      console.error("RESEND VERIFICATION ERROR:", error);
+      setError(getAuthErrorMessage(error));
+    } finally {
+      try {
+        await signOut(auth);
+      } catch (signOutError) {
+        console.error("SIGN OUT ERROR:", signOutError);
+      }
+
+      setResending(false);
+    }
+  }
+
   async function handleForgotPassword() {
+    setError("");
+    setSuccess("");
+
     if (!email.trim()) {
       setError("Enter your email address first.");
       return;
     }
 
     try {
-      setError("");
-
       await sendPasswordResetEmail(auth, email.trim());
 
-      alert("Password reset email sent. Check your email inbox.");
+      setSuccess("Password reset email sent. Check your inbox.");
     } catch (error) {
-      console.error(error);
-
-      setError("Could not send password reset email.");
+      console.error("PASSWORD RESET ERROR:", error);
+      setError(getAuthErrorMessage(error));
     }
   }
 
@@ -132,12 +187,29 @@ function Login() {
             </div>
           )}
 
+          {success && (
+            <div className="mt-4 rounded-lg bg-green-50 p-3 text-sm text-green-700">
+              {success}
+            </div>
+          )}
+
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || resending}
             className="mt-6 w-full rounded-lg bg-slate-800 px-5 py-3 font-medium text-white transition hover:bg-slate-700 disabled:opacity-50"
           >
             {loading ? "Signing in..." : "Sign in"}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleResendVerification}
+            disabled={loading || resending}
+            className="mt-4 w-full rounded-lg border border-slate-300 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+          >
+            {resending
+              ? "Sending verification email..."
+              : "Resend verification email"}
           </button>
 
           <button
