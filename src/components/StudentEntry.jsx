@@ -212,7 +212,7 @@ function SubjectEntry({ subject, onBack, user }) {
             onClick={onBack}
             className="mb-4 text-sm font-medium text-slate-600 hover:text-slate-900"
           >
-            ← Back to subjects
+            Back to subjects
           </button>
 
           <h1 className="text-3xl font-bold text-slate-800">{subject.name}</h1>

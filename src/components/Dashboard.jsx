@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
 
@@ -9,12 +11,13 @@ import SubjectCard from "./SubjectCard";
 import SubjectEntry from "./SubjectEntry";
 
 function Dashboard({ user }) {
+  const { t, i18n } = useTranslation();
+
   const [subjects, setSubjects] = useState([]);
   const [entries, setEntries] = useState([]);
 
   const [showAddSubject, setShowAddSubject] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState(null);
-
   const [selectedPhoto, setSelectedPhoto] = useState(null);
 
   const [loadingSubjects, setLoadingSubjects] = useState(false);
@@ -110,7 +113,7 @@ function Dashboard({ user }) {
 
   async function addSubject(name) {
     if (!user?.uid) {
-      alert("You must be signed in as a teacher.");
+      alert(t("teacherSignInRequired"));
       return;
     }
 
@@ -134,8 +137,7 @@ function Dashboard({ user }) {
       setShowAddSubject(false);
     } catch (error) {
       console.error("Error adding subject:", error);
-
-      alert("Could not save the subject.");
+      alert(t("saveSubjectError"));
     }
   }
 
@@ -145,15 +147,29 @@ function Dashboard({ user }) {
 
   function formatDate(dateString) {
     if (!dateString) {
-      return "Unknown date";
+      return t("unknownDate");
     }
 
     const date = new Date(`${dateString}T00:00:00`);
 
-    return date.toLocaleDateString("en-GB", {
+    const locale = i18n.language.startsWith("de") ? "de-DE" : "en-GB";
+
+    return date.toLocaleDateString(locale, {
       day: "2-digit",
       month: "short",
       year: "numeric",
+    });
+  }
+
+  function formatMonth(dateString) {
+    if (!dateString) {
+      return "---";
+    }
+
+    const locale = i18n.language.startsWith("de") ? "de-DE" : "en-GB";
+
+    return new Date(`${dateString}T00:00:00`).toLocaleDateString(locale, {
+      month: "short",
     });
   }
 
@@ -167,8 +183,6 @@ function Dashboard({ user }) {
       title: title,
       subject: entry.subjectName,
       date: formatDate(entry.entryDate),
-      classwork: entry.classwork,
-      homework: entry.homework,
     });
   }
 
@@ -188,31 +202,32 @@ function Dashboard({ user }) {
     return (
       <div className="min-h-screen bg-gray-100">
         <header className="border-b bg-white">
-          <div className="mx-auto max-w-7xl px-6 py-6">
-            <h1 className="text-3xl font-bold text-slate-800">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
+            <div>
               <img
                 src="/taskcard-logo.png"
                 alt="TaskCard"
                 className="h-20 w-auto"
               />
-              Teacher TaskCard
-            </h1>
 
-            <p className="mt-1 text-gray-500">
-              Classroom communication made simple.
-            </p>
+              <h1 className="mt-2 text-2xl font-bold text-slate-800">
+                Teacher TaskCard
+              </h1>
+
+              <p className="mt-1 text-gray-500">{t("tagline")}</p>
+            </div>
+
+            <LanguageSwitcher />
           </div>
         </header>
 
         <main className="mx-auto flex max-w-4xl justify-center px-6 py-20">
           <div className="w-full max-w-xl rounded-2xl bg-white p-10 text-center shadow-sm">
             <h2 className="text-2xl font-bold text-gray-900">
-              Teacher Dashboard
+              {t("teacherDashboard")}
             </h2>
 
-            <p className="mt-3 text-gray-500">
-              Sign in to manage your subjects, classwork, and homework.
-            </p>
+            <p className="mt-3 text-gray-500">{t("signInPrompt")}</p>
 
             <button
               type="button"
@@ -221,12 +236,10 @@ function Dashboard({ user }) {
               }}
               className="mt-7 rounded-lg bg-slate-800 px-6 py-3 font-medium text-white shadow-sm transition hover:bg-slate-700"
             >
-              Teacher Login
+              {t("teacherLogin")}
             </button>
 
-            <p className="mt-5 text-sm text-gray-400">
-              Students should use the class link provided by their teacher.
-            </p>
+            <p className="mt-5 text-sm text-gray-400">{t("studentLinkInfo")}</p>
           </div>
         </main>
       </div>
@@ -255,32 +268,26 @@ function Dashboard({ user }) {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* --------------------------------------------- */}
       {/* HEADER */}
-      {/* --------------------------------------------- */}
 
       <header className="border-b bg-white">
-        <div className="mx-auto max-w-7xl px-6 py-6">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setShowAddSubject(true)}
-              className="rounded-lg bg-slate-800 px-5 py-3 font-medium text-white shadow-sm transition hover:bg-slate-700"
-            >
-              + Add Subject
-            </button>
-          </div>
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
+          <LanguageSwitcher />
+
+          <button
+            type="button"
+            onClick={() => setShowAddSubject(true)}
+            className="rounded-lg bg-slate-800 px-5 py-3 font-medium text-white shadow-sm transition hover:bg-slate-700"
+          >
+            + {t("addSubject")}
+          </button>
         </div>
       </header>
 
-      {/* --------------------------------------------- */}
       {/* MAIN */}
-      {/* --------------------------------------------- */}
 
       <main className="mx-auto max-w-7xl px-6 py-8">
-        {/* ------------------------------------------- */}
         {/* ADD SUBJECT */}
-        {/* ------------------------------------------- */}
 
         {showAddSubject && (
           <div className="mb-8">
@@ -291,39 +298,35 @@ function Dashboard({ user }) {
           </div>
         )}
 
-        {/* ------------------------------------------- */}
         {/* SUBJECTS */}
-        {/* ------------------------------------------- */}
 
         <section>
           <div className="mb-5">
-            <h2 className="text-2xl font-bold text-gray-900">My Subjects</h2>
+            <h2 className="text-2xl font-bold text-gray-900">
+              {t("mySubjects")}
+            </h2>
 
-            <p className="mt-1 text-gray-500">
-              Select a subject to add today's classwork and homework.
-            </p>
+            <p className="mt-1 text-gray-500">{t("selectSubject")}</p>
           </div>
 
           {loadingSubjects ? (
             <div className="rounded-xl bg-white p-8 text-center text-gray-500">
-              Loading subjects...
+              {t("loadingSubjects")}
             </div>
           ) : subjects.length === 0 ? (
             <div className="rounded-xl border border-dashed border-gray-300 bg-white p-10 text-center">
               <h3 className="text-lg font-semibold text-gray-800">
-                No subjects yet
+                {t("noSubjects")}
               </h3>
 
-              <p className="mt-2 text-gray-500">
-                Add your first subject to get started.
-              </p>
+              <p className="mt-2 text-gray-500">{t("addFirstSubject")}</p>
 
               <button
                 type="button"
                 onClick={() => setShowAddSubject(true)}
                 className="mt-5 rounded-lg bg-blue-600 px-5 py-2.5 text-white hover:bg-blue-700"
               >
-                + Add Subject
+                + {t("addSubject")}
               </button>
             </div>
           ) : (
@@ -339,32 +342,28 @@ function Dashboard({ user }) {
           )}
         </section>
 
-        {/* ------------------------------------------- */}
         {/* DAILY ENTRIES */}
-        {/* ------------------------------------------- */}
 
         <section className="mt-12">
           <div className="mb-5">
-            <h2 className="text-2xl font-bold text-gray-900">Daily Entries</h2>
+            <h2 className="text-2xl font-bold text-gray-900">
+              {t("dailyEntries")}
+            </h2>
 
-            <p className="mt-1 text-gray-500">
-              Classwork and homework from previous days.
-            </p>
+            <p className="mt-1 text-gray-500">{t("previousEntries")}</p>
           </div>
 
           {loadingEntries ? (
             <div className="rounded-xl bg-white p-8 text-center text-gray-500">
-              Loading daily entries...
+              {t("loadingEntries")}
             </div>
           ) : entries.length === 0 ? (
             <div className="rounded-xl border border-dashed border-gray-300 bg-white p-10 text-center">
               <h3 className="text-lg font-semibold text-gray-800">
-                No daily entries yet
+                {t("noEntries")}
               </h3>
 
-              <p className="mt-2 text-gray-500">
-                Your classwork and homework will appear here.
-              </p>
+              <p className="mt-2 text-gray-500">{t("entriesAppear")}</p>
             </div>
           ) : (
             <div className="space-y-8">
@@ -379,13 +378,7 @@ function Dashboard({ user }) {
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                       <div className="flex h-20 w-20 shrink-0 flex-col items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-700 shadow-sm">
                         <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                          {entry.entryDate
-                            ? new Date(
-                                `${entry.entryDate}T00:00:00`,
-                              ).toLocaleDateString("en-GB", {
-                                month: "short",
-                              })
-                            : "---"}
+                          {formatMonth(entry.entryDate)}
                         </span>
 
                         <span className="text-3xl font-bold text-slate-800">
@@ -419,10 +412,12 @@ function Dashboard({ user }) {
                         </div>
 
                         <div>
-                          <h4 className="font-bold text-gray-900">CLASSWORK</h4>
+                          <h4 className="font-bold text-gray-900">
+                            {t("classworkLabel")}
+                          </h4>
 
                           <p className="text-xs text-gray-500">
-                            What was learned today
+                            {t("learnedToday")}
                           </p>
                         </div>
                       </div>
@@ -430,7 +425,7 @@ function Dashboard({ user }) {
                       <div className="whitespace-pre-wrap text-gray-700">
                         {entry.classwork || (
                           <span className="italic text-gray-400">
-                            No classwork notes.
+                            {t("noClasswork")}
                           </span>
                         )}
                       </div>
@@ -438,7 +433,7 @@ function Dashboard({ user }) {
                       {entry.classworkPhoto && (
                         <div className="mt-5 border-t pt-5">
                           <p className="mb-3 text-sm font-semibold text-gray-500">
-                            Classwork Photo
+                            {t("classworkPhoto")}
                           </p>
 
                           <button
@@ -446,7 +441,7 @@ function Dashboard({ user }) {
                             onClick={() =>
                               openPhoto(
                                 entry.classworkPhoto,
-                                "Classwork Photo",
+                                t("classworkPhoto"),
                                 entry,
                               )
                             }
@@ -454,12 +449,12 @@ function Dashboard({ user }) {
                           >
                             <img
                               src={entry.classworkPhoto}
-                              alt="Classwork"
+                              alt={t("classworkPhoto")}
                               className="h-32 w-32 rounded-lg border border-gray-200 object-cover shadow-sm transition group-hover:scale-105 group-hover:shadow-lg"
                             />
 
                             <p className="mt-2 text-sm font-medium text-blue-600">
-                              Click to view large
+                              {t("viewLarge")}
                             </p>
                           </button>
                         </div>
@@ -475,10 +470,12 @@ function Dashboard({ user }) {
                         </div>
 
                         <div>
-                          <h4 className="font-bold text-gray-900">HOMEWORK</h4>
+                          <h4 className="font-bold text-gray-900">
+                            {t("homeworkLabel")}
+                          </h4>
 
                           <p className="text-xs text-gray-500">
-                            Work to complete at home
+                            {t("homeworkDescription")}
                           </p>
                         </div>
                       </div>
@@ -486,7 +483,7 @@ function Dashboard({ user }) {
                       <div className="whitespace-pre-wrap text-gray-700">
                         {entry.homework || (
                           <span className="italic text-gray-400">
-                            No homework notes.
+                            {t("noHomework")}
                           </span>
                         )}
                       </div>
@@ -494,7 +491,7 @@ function Dashboard({ user }) {
                       {entry.homeworkPhoto && (
                         <div className="mt-5 border-t pt-5">
                           <p className="mb-3 text-sm font-semibold text-gray-500">
-                            Homework Photo
+                            {t("homeworkPhoto")}
                           </p>
 
                           <button
@@ -502,7 +499,7 @@ function Dashboard({ user }) {
                             onClick={() =>
                               openPhoto(
                                 entry.homeworkPhoto,
-                                "Homework Photo",
+                                t("homeworkPhoto"),
                                 entry,
                               )
                             }
@@ -510,12 +507,12 @@ function Dashboard({ user }) {
                           >
                             <img
                               src={entry.homeworkPhoto}
-                              alt="Homework"
+                              alt={t("homeworkPhoto")}
                               className="h-32 w-32 rounded-lg border border-gray-200 object-cover shadow-sm transition group-hover:scale-105 group-hover:shadow-lg"
                             />
 
                             <p className="mt-2 text-sm font-medium text-blue-600">
-                              Click to view large
+                              {t("viewLarge")}
                             </p>
                           </button>
                         </div>
@@ -529,9 +526,7 @@ function Dashboard({ user }) {
         </section>
       </main>
 
-      {/* ================================================= */}
       {/* PHOTO PREVIEW MODAL */}
-      {/* ================================================= */}
 
       {selectedPhoto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
@@ -550,6 +545,7 @@ function Dashboard({ user }) {
               <button
                 type="button"
                 onClick={closePhoto}
+                aria-label={t("close")}
                 className="rounded-lg px-3 py-2 text-2xl text-gray-500 hover:bg-gray-100 hover:text-gray-900"
               >
                 ×
@@ -586,7 +582,7 @@ function Dashboard({ user }) {
                 onClick={closePhoto}
                 className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 font-medium text-gray-700 hover:bg-gray-50"
               >
-                Close
+                {t("close")}
               </button>
 
               <button
@@ -594,7 +590,7 @@ function Dashboard({ user }) {
                 onClick={printPhoto}
                 className="rounded-lg bg-slate-800 px-5 py-2.5 font-medium text-white shadow-sm transition hover:bg-slate-700"
               >
-                🖨️ Print Photo
+                🖨️ {t("printPhoto")}
               </button>
             </div>
           </div>

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 import {
   collection,
@@ -13,6 +15,8 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../firebase";
 
 function SubjectEntry({ subject, onBack, user }) {
+  const { t } = useTranslation();
+
   const [classwork, setClasswork] = useState("");
   const [homework, setHomework] = useState("");
 
@@ -74,7 +78,6 @@ function SubjectEntry({ subject, onBack, user }) {
           setHomework(existingEntry.homework || "");
 
           setClassworkPhoto(existingEntry.classworkPhoto || "");
-
           setHomeworkPhoto(existingEntry.homeworkPhoto || "");
         }
       } catch (error) {
@@ -115,7 +118,7 @@ function SubjectEntry({ subject, onBack, user }) {
     e.preventDefault();
 
     if (!user?.uid) {
-      alert("You must be signed in as a teacher.");
+      alert(t("teacherSignInRequired"));
       return;
     }
 
@@ -125,12 +128,10 @@ function SubjectEntry({ subject, onBack, user }) {
       let newClassworkPhoto = classworkPhoto;
       let newHomeworkPhoto = homeworkPhoto;
 
-      // Upload classwork photo
       if (classworkFile) {
         newClassworkPhoto = await uploadPhoto(classworkFile, "classwork");
       }
 
-      // Upload homework photo
       if (homeworkFile) {
         newHomeworkPhoto = await uploadPhoto(homeworkFile, "homework");
       }
@@ -143,13 +144,10 @@ function SubjectEntry({ subject, onBack, user }) {
         homework: homework.trim(),
 
         classworkPhoto: newClassworkPhoto || null,
-
         homeworkPhoto: newHomeworkPhoto || null,
 
         entryDate: getTodayDate(),
 
-        // IMPORTANT:
-        // This connects the entry to this teacher.
         ownerId: user.uid,
 
         createdAt: new Date(),
@@ -171,17 +169,16 @@ function SubjectEntry({ subject, onBack, user }) {
       }
 
       setClassworkPhoto(newClassworkPhoto || "");
-
       setHomeworkPhoto(newHomeworkPhoto || "");
 
       setClassworkFile(null);
       setHomeworkFile(null);
 
-      alert("Today's entry was saved.");
+      alert(t("entrySaved"));
     } catch (error) {
       console.error("Error saving entry:", error);
 
-      alert("Could not save the entry.");
+      alert(t("entrySaveError"));
     } finally {
       setSaving(false);
     }
@@ -193,8 +190,7 @@ function SubjectEntry({ subject, onBack, user }) {
 
   async function copyStudentLink() {
     if (!entryId) {
-      alert("Please save today's entry first.");
-
+      alert(t("saveBeforeCopying"));
       return;
     }
 
@@ -211,8 +207,7 @@ function SubjectEntry({ subject, onBack, user }) {
     } catch (error) {
       console.error("Could not copy student link:", error);
 
-      // Fallback if clipboard is unavailable
-      window.prompt("Copy this student link:", studentLink);
+      window.prompt(t("copyStudentLinkPrompt"), studentLink);
     }
   }
 
@@ -223,8 +218,10 @@ function SubjectEntry({ subject, onBack, user }) {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 p-6">
-        <div className="mx-auto max-w-4xl">
-          <p className="text-gray-500">Loading today's entry...</p>
+        <div className="mx-auto flex max-w-4xl items-center justify-between">
+          <p className="text-gray-500">{t("loadingTodayEntry")}</p>
+
+          <LanguageSwitcher />
         </div>
       </div>
     );
@@ -239,18 +236,24 @@ function SubjectEntry({ subject, onBack, user }) {
       {/* HEADER */}
 
       <header className="border-b bg-white">
-        <div className="mx-auto max-w-4xl px-6 py-5">
-          <button
-            type="button"
-            onClick={onBack}
-            className="mb-4 text-sm font-medium text-slate-600 hover:text-slate-900"
-          >
-            ← Back to subjects
-          </button>
+        <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-5">
+          <div>
+            <button
+              type="button"
+              onClick={onBack}
+              className="mb-4 text-sm font-medium text-slate-600 hover:text-slate-900"
+            >
+              ← {t("backToSubjects")}
+            </button>
 
-          <h1 className="text-3xl font-bold text-slate-800">{subject.name}</h1>
+            <h1 className="text-3xl font-bold text-slate-800">
+              {subject.name}
+            </h1>
 
-          <p className="mt-1 text-gray-500">Today's classwork and homework</p>
+            <p className="mt-1 text-gray-500">{t("todaysClassworkHomework")}</p>
+          </div>
+
+          <LanguageSwitcher />
         </div>
       </header>
 
@@ -263,23 +266,21 @@ function SubjectEntry({ subject, onBack, user }) {
 
             <section className="rounded-xl bg-white p-6 shadow-sm">
               <h2 className="text-xl font-semibold text-slate-800">
-                Classwork
+                {t("classwork")}
               </h2>
 
-              <p className="mt-1 text-sm text-gray-500">
-                What was learned today
-              </p>
+              <p className="mt-1 text-sm text-gray-500">{t("learnedToday")}</p>
 
               <textarea
                 value={classwork}
                 onChange={(e) => setClasswork(e.target.value)}
-                placeholder="Enter today's classwork..."
+                placeholder={t("enterClasswork")}
                 rows={8}
                 className="mt-4 w-full rounded-lg border border-gray-300 p-4 outline-none focus:border-slate-500"
               />
 
               <label className="mt-5 block text-sm font-medium text-gray-700">
-                Classwork photo
+                {t("classworkPhoto")}
               </label>
 
               <input
@@ -292,7 +293,7 @@ function SubjectEntry({ subject, onBack, user }) {
               {classworkPhoto && (
                 <img
                   src={classworkPhoto}
-                  alt="Classwork"
+                  alt={t("classworkPhoto")}
                   className="mt-4 h-32 w-32 rounded-lg border object-cover"
                 />
               )}
@@ -301,22 +302,24 @@ function SubjectEntry({ subject, onBack, user }) {
             {/* HOMEWORK */}
 
             <section className="rounded-xl bg-white p-6 shadow-sm">
-              <h2 className="text-xl font-semibold text-slate-800">Homework</h2>
+              <h2 className="text-xl font-semibold text-slate-800">
+                {t("homework")}
+              </h2>
 
               <p className="mt-1 text-sm text-gray-500">
-                Work to complete at home
+                {t("homeworkDescription")}
               </p>
 
               <textarea
                 value={homework}
                 onChange={(e) => setHomework(e.target.value)}
-                placeholder="Enter today's homework..."
+                placeholder={t("enterHomework")}
                 rows={8}
                 className="mt-4 w-full rounded-lg border border-gray-300 p-4 outline-none focus:border-slate-500"
               />
 
               <label className="mt-5 block text-sm font-medium text-gray-700">
-                Homework photo
+                {t("homeworkPhoto")}
               </label>
 
               <input
@@ -329,16 +332,14 @@ function SubjectEntry({ subject, onBack, user }) {
               {homeworkPhoto && (
                 <img
                   src={homeworkPhoto}
-                  alt="Homework"
+                  alt={t("homeworkPhoto")}
                   className="mt-4 h-32 w-32 rounded-lg border object-cover"
                 />
               )}
             </section>
           </div>
 
-          {/* ------------------------------------------------ */}
           {/* SAVE + STUDENT LINK */}
-          {/* ------------------------------------------------ */}
 
           <div className="mt-6 rounded-xl bg-white p-6 shadow-sm">
             <div className="flex flex-col gap-4 sm:flex-row">
@@ -350,10 +351,10 @@ function SubjectEntry({ subject, onBack, user }) {
                 className="rounded-lg bg-slate-800 px-6 py-3 font-medium text-white hover:bg-slate-700 disabled:opacity-50"
               >
                 {saving
-                  ? "Saving..."
+                  ? t("saving")
                   : entryId
-                    ? "Update Today's Entry"
-                    : "Save Today's Entry"}
+                    ? t("updateTodayEntry")
+                    : t("saveTodayEntry")}
               </button>
 
               {/* STUDENT LINK */}
@@ -364,7 +365,7 @@ function SubjectEntry({ subject, onBack, user }) {
                 disabled={!entryId}
                 className="rounded-lg border border-blue-300 bg-blue-50 px-6 py-3 font-medium text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {copied ? "✓ Student Link Copied" : "🔗 Copy Student Link"}
+                {copied ? t("studentLinkCopied") : `🔗 ${t("copyStudentLink")}`}
               </button>
             </div>
 
@@ -373,8 +374,7 @@ function SubjectEntry({ subject, onBack, user }) {
             {!entryId && (
               <div className="mt-4 rounded-lg bg-gray-50 p-4">
                 <p className="text-sm text-gray-600">
-                  Save today's entry first. After saving, you can copy the
-                  student link and share it with your students.
+                  {t("saveBeforeSharing")}
                 </p>
               </div>
             )}
@@ -384,12 +384,11 @@ function SubjectEntry({ subject, onBack, user }) {
             {entryId && (
               <div className="mt-4 rounded-lg bg-blue-50 p-4">
                 <p className="text-sm font-medium text-blue-800">
-                  Your student link is ready.
+                  {t("studentLinkReady")}
                 </p>
 
                 <p className="mt-1 text-sm text-blue-700">
-                  Anyone who has this link can view this class entry without
-                  signing in.
+                  {t("studentLinkAccessInfo")}
                 </p>
               </div>
             )}
