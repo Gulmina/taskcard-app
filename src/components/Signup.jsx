@@ -1,5 +1,9 @@
 import { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  signOut,
+} from "firebase/auth";
 import { auth } from "../firebase";
 
 function Signup() {
@@ -17,6 +21,8 @@ function Signup() {
     setError("");
     setSuccess("");
 
+    const cleanEmail = email.trim();
+
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
@@ -30,21 +36,43 @@ function Signup() {
     setLoading(true);
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        cleanEmail,
+        password,
+      );
 
-      setSuccess("Account created successfully. You can now sign in.");
+      // Send verification email
+      await sendEmailVerification(userCredential.user);
+
+      // Sign out until the email is verified
+      await signOut(auth);
+
+      setSuccess(
+        "Account created! Please check your email and click the verification link before signing in. Also check your spam folder.",
+      );
+
       setEmail("");
       setPassword("");
       setConfirmPassword("");
     } catch (error) {
       console.error(error);
 
+      // Make sure the user is signed out if email sending fails
+      if (auth.currentUser) {
+        await signOut(auth).catch(console.error);
+      }
+
       if (error.code === "auth/email-already-in-use") {
         setError("An account with this email already exists.");
       } else if (error.code === "auth/invalid-email") {
         setError("Please enter a valid email address.");
+      } else if (error.code === "auth/weak-password") {
+        setError("Please choose a stronger password.");
       } else {
-        setError("Could not create the account.");
+        setError(
+          "Could not create the account or send verification email. Please try again.",
+        );
       }
     } finally {
       setLoading(false);
@@ -55,12 +83,13 @@ function Signup() {
     <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-sm">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-slate-800">
-            <img
-              src="/taskcard-logo.png"
-              alt="TaskCard"
-              className="h-20 w-auto"
-            />
+          <img
+            src="/taskcard-logo.png"
+            alt="TaskCard"
+            className="mx-auto h-20 w-auto"
+          />
+
+          <h1 className="mt-2 text-3xl font-bold text-slate-800">
             Teacher TaskCard
           </h1>
 
