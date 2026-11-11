@@ -16,7 +16,7 @@ function App() {
     let active = true;
 
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (!currentUser) {
+      if (window.location.pathname === "/signup") {
         if (active) {
           setUser(null);
           setLoading(false);
