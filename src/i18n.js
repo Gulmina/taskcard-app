@@ -4,6 +4,7 @@ import { initReactI18next } from "react-i18next";
 const resources = {
   en: {
     translation: {
+      // GENERAL
       welcome: "Welcome to TaskCard",
       login: "Sign in",
       signup: "Create an account",
@@ -13,18 +14,51 @@ const resources = {
       homework: "Homework",
       classwork: "Classwork",
       language: "Language",
-      teacherSignInRequired: "You must be signed in as a teacher.",
-      saveSubjectError: "Could not save the subject.",
-      teacherSignInRequired: "Du musst als Lehrkraft angemeldet sein.",
-      saveSubjectError: "Das Fach konnte nicht gespeichert werden.",
+
+      // ADD SUBJECT
+      subjectName: "Subject name",
+      subjectPlaceholder: "e.g. Mathematics",
+      createSubject: "Create Subject",
+      cancel: "Cancel",
+
+      // DASHBOARD
+      tagline: "Classroom communication made simple.",
+      teacherDashboard: "Teacher Dashboard",
+      teacherLogin: "Teacher Login",
+      signInPrompt: "Sign in to manage your subjects, classwork, and homework.",
+      studentLinkInfo:
+        "Students should use the class link provided by their teacher.",
+
+      mySubjects: "My Subjects",
+      selectSubject: "Select a subject to add today's classwork and homework.",
+      loadingSubjects: "Loading subjects...",
+      noSubjects: "No subjects yet",
+      addFirstSubject: "Add your first subject to get started.",
+
+      dailyEntries: "Daily Entries",
+      previousEntries: "Classwork and homework from previous days.",
+      loadingEntries: "Loading daily entries...",
+      noEntries: "No daily entries yet",
+      entriesAppear: "Your classwork and homework will appear here.",
+
+      classworkLabel: "CLASSWORK",
+      learnedToday: "What was learned today",
+      noClasswork: "No classwork notes.",
+      classworkPhoto: "Classwork Photo",
+
+      homeworkLabel: "HOMEWORK",
+      homeworkDescription: "Work to complete at home",
+      noHomework: "No homework notes.",
+      homeworkPhoto: "Homework Photo",
+
+      viewLarge: "Click to view large",
+      unknownDate: "Unknown date",
+      close: "Close",
+      printPhoto: "Print Photo",
+
+      // SUBJECT ENTRY
       backToSubjects: "Back to subjects",
       todaysClassworkHomework: "Today's classwork and homework",
-      classwork: "Classwork",
-      homework: "Homework",
-      learnedToday: "What was learned today",
-      homeworkDescription: "Work to complete at home",
-      classworkPhoto: "Classwork photo",
-      homeworkPhoto: "Homework photo",
       enterClasswork: "Enter today's classwork...",
       enterHomework: "Enter today's homework...",
       loadingTodayEntry: "Loading today's entry...",
@@ -33,6 +67,8 @@ const resources = {
       updateTodayEntry: "Update Today's Entry",
       entrySaved: "Today's entry was saved.",
       entrySaveError: "Could not save the entry.",
+
+      // STUDENT LINK
       saveBeforeCopying: "Please save today's entry first.",
       copyStudentLinkPrompt: "Copy this student link:",
       studentLinkCopied: "✓ Student Link Copied",
@@ -42,9 +78,12 @@ const resources = {
       studentLinkReady: "Your student link is ready.",
       studentLinkAccessInfo:
         "Anyone who has this link can view this class entry without signing in.",
+
+      // AUTHENTICATION
       teacherSignInRequired: "You must be signed in as a teacher.",
+      saveSubjectError: "Could not save the subject.",
+
       teacherTaskCard: "Teacher TaskCard",
-      signInPrompt: "Sign in to your account",
       email: "Email",
       password: "Password",
       signingIn: "Signing in...",
@@ -67,7 +106,8 @@ const resources = {
       resendVerification: "Resend verification email",
       sendingVerification: "Sending verification email...",
       newTeacher: "New teacher? Create an account",
-      login: "Sign in",
+
+      // SIGNUP
       createTeacherAccount: "Create a teacher account",
       confirmPassword: "Confirm password",
       createAccount: "Create Account",
@@ -86,6 +126,7 @@ const resources = {
 
   de: {
     translation: {
+      // GENERAL
       welcome: "Willkommen bei TaskCard",
       login: "Anmelden",
       signup: "Konto erstellen",
@@ -95,14 +136,55 @@ const resources = {
       homework: "Hausaufgaben",
       classwork: "Unterrichtsinhalte",
       language: "Sprache",
+
+      // ADD SUBJECT
+      subjectName: "Fachname",
+      subjectPlaceholder: "z. B. Mathematik",
+      createSubject: "Fach erstellen",
+      cancel: "Abbrechen",
+
+      // DASHBOARD
+      tagline: "Einfache Kommunikation zwischen Schule und Zuhause.",
+      teacherDashboard: "Lehrer-Dashboard",
+      teacherLogin: "Lehrkraft-Anmeldung",
+      signInPrompt:
+        "Melde dich an, um deine Fächer, Unterrichtsinhalte und Hausaufgaben zu verwalten.",
+      studentLinkInfo:
+        "Schülerinnen und Schüler nutzen bitte den Klassenlink ihrer Lehrkraft.",
+
+      mySubjects: "Meine Fächer",
+      selectSubject:
+        "Wähle ein Fach, um die heutigen Unterrichtsinhalte und Hausaufgaben hinzuzufügen.",
+      loadingSubjects: "Fächer werden geladen...",
+      noSubjects: "Noch keine Fächer vorhanden",
+      addFirstSubject: "Füge dein erstes Fach hinzu.",
+
+      dailyEntries: "Tägliche Einträge",
+      previousEntries:
+        "Unterrichtsinhalte und Hausaufgaben aus vergangenen Tagen.",
+      loadingEntries: "Einträge werden geladen...",
+      noEntries: "Noch keine Einträge vorhanden",
+      entriesAppear:
+        "Deine Unterrichtsinhalte und Hausaufgaben erscheinen hier.",
+
+      classworkLabel: "UNTERRICHTSINHALTE",
+      learnedToday: "Das haben wir heute gelernt",
+      noClasswork: "Keine Unterrichtsinhalte vorhanden.",
+      classworkPhoto: "Foto zum Unterricht",
+
+      homeworkLabel: "HAUSAUFGABEN",
+      homeworkDescription: "Aufgaben für zu Hause",
+      noHomework: "Keine Hausaufgaben vorhanden.",
+      homeworkPhoto: "Hausaufgabenfoto",
+
+      viewLarge: "Zum Vergrößern anklicken",
+      unknownDate: "Unbekanntes Datum",
+      close: "Schließen",
+      printPhoto: "Foto drucken",
+
+      // SUBJECT ENTRY
       backToSubjects: "Zurück zu den Fächern",
       todaysClassworkHomework: "Heutige Unterrichtsinhalte und Hausaufgaben",
-      classwork: "Unterrichtsinhalte",
-      homework: "Hausaufgaben",
-      learnedToday: "Das haben wir heute gelernt",
-      homeworkDescription: "Aufgaben für zu Hause",
-      classworkPhoto: "Foto zum Unterricht",
-      homeworkPhoto: "Hausaufgabenfoto",
       enterClasswork: "Heutige Unterrichtsinhalte eingeben...",
       enterHomework: "Heutige Hausaufgaben eingeben...",
       loadingTodayEntry: "Der heutige Eintrag wird geladen...",
@@ -111,6 +193,8 @@ const resources = {
       updateTodayEntry: "Heutigen Eintrag aktualisieren",
       entrySaved: "Der heutige Eintrag wurde gespeichert.",
       entrySaveError: "Der Eintrag konnte nicht gespeichert werden.",
+
+      // STUDENT LINK
       saveBeforeCopying: "Bitte speichere zuerst den heutigen Eintrag.",
       copyStudentLinkPrompt: "Diesen Schülerlink kopieren:",
       studentLinkCopied: "✓ Schülerlink kopiert",
@@ -120,9 +204,12 @@ const resources = {
       studentLinkReady: "Dein Schülerlink ist bereit.",
       studentLinkAccessInfo:
         "Alle Personen mit diesem Link können diesen Klasseneintrag ohne Anmeldung ansehen.",
+
+      // AUTHENTICATION
       teacherSignInRequired: "Du musst als Lehrkraft angemeldet sein.",
+      saveSubjectError: "Das Fach konnte nicht gespeichert werden.",
+
       teacherTaskCard: "TaskCard für Lehrkräfte",
-      signInPrompt: "Melde dich bei deinem Konto an",
       email: "E-Mail",
       password: "Passwort",
       signingIn: "Anmeldung läuft...",
@@ -147,7 +234,8 @@ const resources = {
       resendVerification: "Bestätigungs-E-Mail erneut senden",
       sendingVerification: "Bestätigungs-E-Mail wird gesendet...",
       newTeacher: "Neue Lehrkraft? Konto erstellen",
-      login: "Anmelden",
+
+      // SIGNUP
       createTeacherAccount: "Lehrkraftkonto erstellen",
       confirmPassword: "Passwort bestätigen",
       createAccount: "Konto erstellen",

@@ -1,15 +1,19 @@
+import { useTranslation } from "react-i18next";
+
 function SubjectCard({ subject, onOpen }) {
+  const { t } = useTranslation();
+
   async function copyStudentLink() {
     const studentLink = `${window.location.origin}/student/class/${subject.id}`;
 
     try {
       await navigator.clipboard.writeText(studentLink);
 
-      alert("Student link copied!");
+      alert(t("studentLinkCopied"));
     } catch (error) {
       console.error("Could not copy student link:", error);
 
-      window.prompt("Copy this student link:", studentLink);
+      window.prompt(t("copyStudentLinkPrompt"), studentLink);
     }
   }
 
@@ -18,7 +22,7 @@ function SubjectCard({ subject, onOpen }) {
       <h4 className="text-xl font-semibold text-gray-900">{subject.name}</h4>
 
       <p className="mt-2 text-sm text-gray-500">
-        Today's classwork and homework
+        {t("todaysClassworkHomework")}
       </p>
 
       <div className="mt-6 flex flex-col gap-3">
@@ -27,7 +31,7 @@ function SubjectCard({ subject, onOpen }) {
           onClick={onOpen}
           className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-medium text-slate-700 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
         >
-          Today's entry →
+          {t("todaysEntry")} →
         </button>
 
         <button
@@ -35,7 +39,7 @@ function SubjectCard({ subject, onOpen }) {
           onClick={copyStudentLink}
           className="rounded-lg border border-blue-300 bg-blue-50 px-4 py-2.5 font-medium text-blue-700 transition hover:bg-blue-100"
         >
-          🔗 Copy Student Link
+          🔗 {t("copyStudentLink")}
         </button>
       </div>
     </div>
