@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   collection,
@@ -11,8 +12,11 @@ import {
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 import { db, storage } from "../firebase";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 
 function SubjectEntry({ subject, onBack, user }) {
+  const { t } = useTranslation();
+
   const [classwork, setClasswork] = useState("");
   const [homework, setHomework] = useState("");
 
@@ -27,10 +31,6 @@ function SubjectEntry({ subject, onBack, user }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // --------------------------------------------------
-  // TODAY'S DATE
-  // --------------------------------------------------
-
   function getTodayDate() {
     const today = new Date();
 
@@ -40,10 +40,6 @@ function SubjectEntry({ subject, onBack, user }) {
 
     return `${year}-${month}-${day}`;
   }
-
-  // --------------------------------------------------
-  // LOAD TODAY'S ENTRY
-  // --------------------------------------------------
 
   useEffect(() => {
     async function loadTodayEntry() {
@@ -68,12 +64,9 @@ function SubjectEntry({ subject, onBack, user }) {
 
         if (existingEntry) {
           setEntryId(existingEntry.id);
-
           setClasswork(existingEntry.classwork || "");
           setHomework(existingEntry.homework || "");
-
           setClassworkPhoto(existingEntry.classworkPhoto || "");
-
           setHomeworkPhoto(existingEntry.homeworkPhoto || "");
         }
       } catch (error) {
@@ -87,10 +80,6 @@ function SubjectEntry({ subject, onBack, user }) {
       loadTodayEntry();
     }
   }, [subject, user]);
-
-  // --------------------------------------------------
-  // UPLOAD PHOTO
-  // --------------------------------------------------
 
   async function uploadPhoto(file, folder) {
     if (!file) {
@@ -106,15 +95,11 @@ function SubjectEntry({ subject, onBack, user }) {
     return await getDownloadURL(storageRef);
   }
 
-  // --------------------------------------------------
-  // SAVE ENTRY
-  // --------------------------------------------------
-
   async function handleSave(e) {
     e.preventDefault();
 
     if (!user?.uid) {
-      alert("You must be signed in as a teacher.");
+      alert(t("teacherSignInRequired"));
       return;
     }
 
@@ -124,12 +109,10 @@ function SubjectEntry({ subject, onBack, user }) {
       let newClassworkPhoto = classworkPhoto;
       let newHomeworkPhoto = homeworkPhoto;
 
-      // Upload classwork photo
       if (classworkFile) {
         newClassworkPhoto = await uploadPhoto(classworkFile, "classwork");
       }
 
-      // Upload homework photo
       if (homeworkFile) {
         newHomeworkPhoto = await uploadPhoto(homeworkFile, "homework");
       }
@@ -146,19 +129,14 @@ function SubjectEntry({ subject, onBack, user }) {
 
         entryDate: getTodayDate(),
 
-        // Connects the entry to this teacher
         ownerId: user.uid,
 
         createdAt: new Date(),
       };
 
-      // UPDATE EXISTING ENTRY
       if (entryId) {
         await updateDoc(doc(db, "dailyEntries", entryId), entryData);
-      }
-
-      // CREATE NEW ENTRY
-      else {
+      } else {
         const newEntry = await addDoc(
           collection(db, "dailyEntries"),
           entryData,
@@ -173,80 +151,70 @@ function SubjectEntry({ subject, onBack, user }) {
       setClassworkFile(null);
       setHomeworkFile(null);
 
-      alert("Today's entry was saved.");
+      alert(t("entrySaved"));
     } catch (error) {
       console.error("Error saving entry:", error);
-
-      alert("Could not save the entry.");
+      alert(t("entrySaveError"));
     } finally {
       setSaving(false);
     }
   }
 
-  // --------------------------------------------------
-  // LOADING
-  // --------------------------------------------------
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 p-6">
         <div className="mx-auto max-w-4xl">
-          <p className="text-gray-500">Loading today's entry...</p>
+          <div className="mb-5 flex justify-end">
+            <LanguageSwitcher />
+          </div>
+          <p className="text-gray-500">{t("loadingTodayEntry")}</p>
         </div>
       </div>
     );
   }
 
-  // --------------------------------------------------
-  // PAGE
-  // --------------------------------------------------
-
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* HEADER */}
-
       <header className="border-b bg-white">
         <div className="mx-auto max-w-4xl px-6 py-5">
+          <div className="mb-5 flex justify-end">
+            <LanguageSwitcher />
+          </div>
+
           <button
             type="button"
             onClick={onBack}
             className="mb-4 text-sm font-medium text-slate-600 hover:text-slate-900"
           >
-            Back to subjects
+            {t("backToSubjects")}
           </button>
 
           <h1 className="text-3xl font-bold text-slate-800">{subject.name}</h1>
 
-          <p className="mt-1 text-gray-500">Today's classwork and homework</p>
+          <p className="mt-1 text-gray-500">{t("todaysClassworkHomework")}</p>
         </div>
       </header>
-
-      {/* MAIN */}
 
       <main className="mx-auto max-w-4xl px-6 py-8">
         <form onSubmit={handleSave}>
           <div className="grid gap-6 md:grid-cols-2">
-            {/* CLASSWORK */}
-
             <section className="rounded-xl bg-white p-6 shadow-sm">
               <h2 className="text-xl font-semibold text-slate-800">
-                Classwork
+                {t("classwork")}
               </h2>
 
-              <p className="mt-1 text-sm text-gray-500">
-                What was learned today
-              </p>
+              <p className="mt-1 text-sm text-gray-500">{t("learnedToday")}</p>
 
               <textarea
                 value={classwork}
                 onChange={(e) => setClasswork(e.target.value)}
-                placeholder="Enter today's classwork..."
+                placeholder={t("enterClasswork")}
                 rows={8}
                 className="mt-4 w-full rounded-lg border border-gray-300 p-4 outline-none focus:border-slate-500"
               />
 
               <label className="mt-5 block text-sm font-medium text-gray-700">
-                Classwork photo
+                {t("classworkPhoto")}
               </label>
 
               <input
@@ -259,31 +227,31 @@ function SubjectEntry({ subject, onBack, user }) {
               {classworkPhoto && (
                 <img
                   src={classworkPhoto}
-                  alt="Classwork"
+                  alt={t("classworkPhoto")}
                   className="mt-4 h-32 w-32 rounded-lg border object-cover"
                 />
               )}
             </section>
 
-            {/* HOMEWORK */}
-
             <section className="rounded-xl bg-white p-6 shadow-sm">
-              <h2 className="text-xl font-semibold text-slate-800">Homework</h2>
+              <h2 className="text-xl font-semibold text-slate-800">
+                {t("homework")}
+              </h2>
 
               <p className="mt-1 text-sm text-gray-500">
-                Work to complete at home
+                {t("homeworkDescription")}
               </p>
 
               <textarea
                 value={homework}
                 onChange={(e) => setHomework(e.target.value)}
-                placeholder="Enter today's homework..."
+                placeholder={t("enterHomework")}
                 rows={8}
                 className="mt-4 w-full rounded-lg border border-gray-300 p-4 outline-none focus:border-slate-500"
               />
 
               <label className="mt-5 block text-sm font-medium text-gray-700">
-                Homework photo
+                {t("homeworkPhoto")}
               </label>
 
               <input
@@ -296,14 +264,12 @@ function SubjectEntry({ subject, onBack, user }) {
               {homeworkPhoto && (
                 <img
                   src={homeworkPhoto}
-                  alt="Homework"
+                  alt={t("homeworkPhoto")}
                   className="mt-4 h-32 w-32 rounded-lg border object-cover"
                 />
               )}
             </section>
           </div>
-
-          {/* SAVE */}
 
           <div className="mt-6 rounded-xl bg-white p-6 shadow-sm">
             <button
@@ -312,10 +278,10 @@ function SubjectEntry({ subject, onBack, user }) {
               className="rounded-lg bg-slate-800 px-6 py-3 font-medium text-white hover:bg-slate-700 disabled:opacity-50"
             >
               {saving
-                ? "Saving..."
+                ? t("saving")
                 : entryId
-                  ? "Update Today's Entry"
-                  : "Save Today's Entry"}
+                  ? t("updateTodayEntry")
+                  : t("saveTodayEntry")}
             </button>
           </div>
         </form>

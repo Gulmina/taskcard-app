@@ -43,6 +43,44 @@ const resources = {
       studentLinkAccessInfo:
         "Anyone who has this link can view this class entry without signing in.",
       teacherSignInRequired: "You must be signed in as a teacher.",
+      teacherTaskCard: "Teacher TaskCard",
+      signInPrompt: "Sign in to your account",
+      email: "Email",
+      password: "Password",
+      signingIn: "Signing in...",
+      incorrectCredentials: "Incorrect email or password.",
+      invalidEmail: "Please enter a valid email address.",
+      tooManyRequests: "Too many attempts. Please wait and try again.",
+      emailVerificationUnavailable:
+        "Email verification is currently unavailable.",
+      generalError: "Something went wrong. Please try again.",
+      emailNotVerified:
+        "Your email is not verified. Please check your inbox or resend the verification email.",
+      enterEmailAndPassword:
+        "Please enter your email address and password first.",
+      alreadyVerified: "Your email is already verified. You can sign in now.",
+      verificationEmailSent:
+        "A new verification email has been sent. Please check your inbox and spam folder.",
+      enterEmailFirst: "Enter your email address first.",
+      passwordResetSent: "Password reset email sent. Check your inbox.",
+      forgotPassword: "Forgot password?",
+      resendVerification: "Resend verification email",
+      sendingVerification: "Sending verification email...",
+      newTeacher: "New teacher? Create an account",
+      login: "Sign in",
+      createTeacherAccount: "Create a teacher account",
+      confirmPassword: "Confirm password",
+      createAccount: "Create Account",
+      creatingAccount: "Creating account...",
+      alreadyHaveAccount: "Already have an account? Sign in",
+      passwordsDoNotMatch: "Passwords do not match.",
+      passwordTooShort: "Password must be at least 6 characters.",
+      emailAlreadyExists: "An account with this email already exists.",
+      weakPassword: "Please choose a stronger password.",
+      signupError:
+        "Could not create the account or send verification email. Please try again.",
+      accountCreatedVerification:
+        "Account created! Please check your email and click the verification link before signing in. Also check your spam folder.",
     },
   },
 
@@ -83,6 +121,47 @@ const resources = {
       studentLinkAccessInfo:
         "Alle Personen mit diesem Link können diesen Klasseneintrag ohne Anmeldung ansehen.",
       teacherSignInRequired: "Du musst als Lehrkraft angemeldet sein.",
+      teacherTaskCard: "TaskCard für Lehrkräfte",
+      signInPrompt: "Melde dich bei deinem Konto an",
+      email: "E-Mail",
+      password: "Passwort",
+      signingIn: "Anmeldung läuft...",
+      incorrectCredentials: "E-Mail oder Passwort ist falsch.",
+      invalidEmail: "Bitte gib eine gültige E-Mail-Adresse ein.",
+      tooManyRequests: "Zu viele Versuche. Bitte warte einen Moment.",
+      emailVerificationUnavailable:
+        "Die E-Mail-Verifizierung ist derzeit nicht verfügbar.",
+      generalError: "Ein Fehler ist aufgetreten. Bitte versuche es erneut.",
+      emailNotVerified:
+        "Deine E-Mail-Adresse wurde noch nicht bestätigt. Bitte prüfe deinen Posteingang oder fordere eine neue Bestätigungs-E-Mail an.",
+      enterEmailAndPassword:
+        "Bitte gib zuerst deine E-Mail-Adresse und dein Passwort ein.",
+      alreadyVerified:
+        "Deine E-Mail-Adresse ist bereits bestätigt. Du kannst dich anmelden.",
+      verificationEmailSent:
+        "Eine neue Bestätigungs-E-Mail wurde gesendet. Bitte prüfe deinen Posteingang und Spam-Ordner.",
+      enterEmailFirst: "Bitte gib zuerst deine E-Mail-Adresse ein.",
+      passwordResetSent:
+        "Die E-Mail zum Zurücksetzen des Passworts wurde gesendet.",
+      forgotPassword: "Passwort vergessen?",
+      resendVerification: "Bestätigungs-E-Mail erneut senden",
+      sendingVerification: "Bestätigungs-E-Mail wird gesendet...",
+      newTeacher: "Neue Lehrkraft? Konto erstellen",
+      login: "Anmelden",
+      createTeacherAccount: "Lehrkraftkonto erstellen",
+      confirmPassword: "Passwort bestätigen",
+      createAccount: "Konto erstellen",
+      creatingAccount: "Konto wird erstellt...",
+      alreadyHaveAccount: "Du hast bereits ein Konto? Anmelden",
+      passwordsDoNotMatch: "Die Passwörter stimmen nicht überein.",
+      passwordTooShort: "Das Passwort muss mindestens 6 Zeichen lang sein.",
+      emailAlreadyExists:
+        "Für diese E-Mail-Adresse existiert bereits ein Konto.",
+      weakPassword: "Bitte wähle ein stärkeres Passwort.",
+      signupError:
+        "Das Konto oder die Bestätigungs-E-Mail konnte nicht erstellt bzw. gesendet werden. Bitte versuche es erneut.",
+      accountCreatedVerification:
+        "Konto erstellt! Bitte prüfe deine E-Mails und klicke auf den Bestätigungslink, bevor du dich anmeldest. Prüfe auch deinen Spam-Ordner.",
     },
   },
 };

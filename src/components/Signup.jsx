@@ -1,12 +1,18 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+
 import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
   signOut,
 } from "firebase/auth";
+
 import { auth } from "../firebase";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 
 function Signup() {
+  const { t } = useTranslation();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -24,12 +30,12 @@ function Signup() {
     const cleanEmail = email.trim();
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+      setError(t("passwordsDoNotMatch"));
       return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
+      setError(t("passwordTooShort"));
       return;
     }
 
@@ -42,37 +48,32 @@ function Signup() {
         password,
       );
 
-      // Send verification email
       await sendEmailVerification(userCredential.user);
 
-      // Sign out until the email is verified
       await signOut(auth);
 
-      setSuccess(
-        "Account created! Please check your email and click the verification link before signing in. Also check your spam folder.",
-      );
+      setSuccess(t("accountCreatedVerification"));
 
       setEmail("");
       setPassword("");
       setConfirmPassword("");
     } catch (error) {
-      console.error(error);
+      console.error("SIGNUP ERROR:", error);
 
-      // Make sure the user is signed out if email sending fails
       if (auth.currentUser) {
         await signOut(auth).catch(console.error);
       }
 
       if (error.code === "auth/email-already-in-use") {
-        setError("An account with this email already exists.");
+        setError(t("emailAlreadyExists"));
       } else if (error.code === "auth/invalid-email") {
-        setError("Please enter a valid email address.");
+        setError(t("invalidEmail"));
       } else if (error.code === "auth/weak-password") {
-        setError("Please choose a stronger password.");
+        setError(t("weakPassword"));
+      } else if (error.code === "auth/too-many-requests") {
+        setError(t("tooManyRequests"));
       } else {
-        setError(
-          "Could not create the account or send verification email. Please try again.",
-        );
+        setError(t("signupError"));
       }
     } finally {
       setLoading(false);
@@ -82,6 +83,10 @@ function Signup() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-sm">
+        <div className="mb-6 flex justify-end">
+          <LanguageSwitcher />
+        </div>
+
         <div className="mb-8 text-center">
           <img
             src="/taskcard-logo.png"
@@ -90,15 +95,15 @@ function Signup() {
           />
 
           <h1 className="mt-2 text-3xl font-bold text-slate-800">
-            Teacher TaskCard
+            {t("teacherTaskCard")}
           </h1>
 
-          <p className="mt-2 text-slate-500">Create a teacher account</p>
+          <p className="mt-2 text-slate-500">{t("createTeacherAccount")}</p>
         </div>
 
         <form onSubmit={handleSubmit}>
           <label className="mb-2 block text-sm font-medium text-slate-700">
-            Email
+            {t("email")}
           </label>
 
           <input
@@ -111,27 +116,27 @@ function Signup() {
           />
 
           <label className="mb-2 mt-5 block text-sm font-medium text-slate-700">
-            Password
+            {t("password")}
           </label>
 
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
+            placeholder={t("password")}
             required
             className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-slate-500"
           />
 
           <label className="mb-2 mt-5 block text-sm font-medium text-slate-700">
-            Confirm password
+            {t("confirmPassword")}
           </label>
 
           <input
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Confirm password"
+            placeholder={t("confirmPassword")}
             required
             className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-slate-500"
           />
@@ -153,7 +158,7 @@ function Signup() {
             disabled={loading}
             className="mt-6 w-full rounded-lg bg-slate-800 px-5 py-3 font-medium text-white transition hover:bg-slate-700 disabled:opacity-50"
           >
-            {loading ? "Creating account..." : "Create Account"}
+            {loading ? t("creatingAccount") : t("createAccount")}
           </button>
         </form>
 
@@ -164,7 +169,7 @@ function Signup() {
           }}
           className="mt-4 w-full text-sm font-medium text-slate-600 hover:text-slate-900"
         >
-          Already have an account? Sign in
+          {t("alreadyHaveAccount")}
         </button>
       </div>
     </div>

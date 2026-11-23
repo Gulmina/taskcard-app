@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   signInWithEmailAndPassword,
@@ -8,8 +9,11 @@ import {
 } from "firebase/auth";
 
 import { auth } from "../firebase";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 
 function Login() {
+  const { t } = useTranslation();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -20,23 +24,27 @@ function Login() {
   const [resending, setResending] = useState(false);
 
   function getAuthErrorMessage(error) {
-    if (error.code === "auth/invalid-credential") {
-      return "Incorrect email or password.";
+    if (
+      error.code === "auth/invalid-credential" ||
+      error.code === "auth/wrong-password" ||
+      error.code === "auth/user-not-found"
+    ) {
+      return t("incorrectCredentials");
     }
 
     if (error.code === "auth/invalid-email") {
-      return "Please enter a valid email address.";
+      return t("invalidEmail");
     }
 
     if (error.code === "auth/too-many-requests") {
-      return "Too many attempts. Please wait a while and try again.";
+      return t("tooManyRequests");
     }
 
     if (error.code === "auth/operation-not-allowed") {
-      return "Email verification is currently unavailable. Please check your Firebase Authentication settings.";
+      return t("emailVerificationUnavailable");
     }
 
-    return "Something went wrong. Please try again.";
+    return t("generalError");
   }
 
   async function handleSubmit(e) {
@@ -58,10 +66,7 @@ function Login() {
       if (!userCredential.user.emailVerified) {
         await signOut(auth);
 
-        setError(
-          "Your email is not verified. Please check your inbox or use the Resend Verification Email button below.",
-        );
-
+        setError(t("emailNotVerified"));
         return;
       }
 
@@ -79,7 +84,7 @@ function Login() {
     setSuccess("");
 
     if (!email.trim() || !password) {
-      setError("Please enter your email address and password first.");
+      setError(t("enterEmailAndPassword"));
       return;
     }
 
@@ -95,15 +100,13 @@ function Login() {
       await userCredential.user.reload();
 
       if (userCredential.user.emailVerified) {
-        setSuccess("Your email is already verified. You can sign in now.");
+        setSuccess(t("alreadyVerified"));
         return;
       }
 
       await sendEmailVerification(userCredential.user);
 
-      setSuccess(
-        "A new verification email has been sent. Please check your inbox and spam folder.",
-      );
+      setSuccess(t("verificationEmailSent"));
     } catch (error) {
       console.error("RESEND VERIFICATION ERROR:", error);
       setError(getAuthErrorMessage(error));
@@ -123,14 +126,13 @@ function Login() {
     setSuccess("");
 
     if (!email.trim()) {
-      setError("Enter your email address first.");
+      setError(t("enterEmailFirst"));
       return;
     }
 
     try {
       await sendPasswordResetEmail(auth, email.trim());
-
-      setSuccess("Password reset email sent. Check your inbox.");
+      setSuccess(t("passwordResetSent"));
     } catch (error) {
       console.error("PASSWORD RESET ERROR:", error);
       setError(getAuthErrorMessage(error));
@@ -140,6 +142,10 @@ function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-sm">
+        <div className="mb-6 flex justify-end">
+          <LanguageSwitcher />
+        </div>
+
         <div className="mb-8 text-center">
           <img
             src="/taskcard-logo.png"
@@ -148,15 +154,15 @@ function Login() {
           />
 
           <h1 className="mt-2 text-3xl font-bold text-slate-800">
-            Teacher TaskCard
+            {t("teacherTaskCard")}
           </h1>
 
-          <p className="mt-2 text-slate-500">Sign in to your account</p>
+          <p className="mt-2 text-slate-500">{t("signInPrompt")}</p>
         </div>
 
         <form onSubmit={handleSubmit}>
           <label className="mb-2 block text-sm font-medium text-slate-700">
-            Email
+            {t("email")}
           </label>
 
           <input
@@ -169,14 +175,14 @@ function Login() {
           />
 
           <label className="mb-2 mt-5 block text-sm font-medium text-slate-700">
-            Password
+            {t("password")}
           </label>
 
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
+            placeholder={t("password")}
             required
             className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-slate-500"
           />
@@ -198,7 +204,7 @@ function Login() {
             disabled={loading || resending}
             className="mt-6 w-full rounded-lg bg-slate-800 px-5 py-3 font-medium text-white transition hover:bg-slate-700 disabled:opacity-50"
           >
-            {loading ? "Signing in..." : "Sign in"}
+            {loading ? t("signingIn") : t("login")}
           </button>
 
           <button
@@ -207,9 +213,7 @@ function Login() {
             disabled={loading || resending}
             className="mt-4 w-full rounded-lg border border-slate-300 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
           >
-            {resending
-              ? "Sending verification email..."
-              : "Resend verification email"}
+            {resending ? t("sendingVerification") : t("resendVerification")}
           </button>
 
           <button
@@ -217,7 +221,7 @@ function Login() {
             onClick={handleForgotPassword}
             className="mt-4 w-full text-sm font-medium text-slate-600 hover:text-slate-900"
           >
-            Forgot password?
+            {t("forgotPassword")}
           </button>
 
           <button
@@ -227,7 +231,7 @@ function Login() {
             }}
             className="mt-4 w-full text-sm font-medium text-slate-600 hover:text-slate-900"
           >
-            New teacher? Create an account
+            {t("newTeacher")}
           </button>
         </form>
       </div>
