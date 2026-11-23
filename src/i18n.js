@@ -20,6 +20,8 @@ const resources = {
       subjectPlaceholder: "e.g. Mathematics",
       createSubject: "Create Subject",
       cancel: "Cancel",
+      todaysEntry: "Today's Entry",
+      copyStudentLink: "Copy Student Link",
 
       // DASHBOARD
       tagline: "Classroom communication made simple.",
@@ -136,6 +138,8 @@ const resources = {
       homework: "Hausaufgaben",
       classwork: "Unterrichtsinhalte",
       language: "Sprache",
+      todaysEntry: "Heutiger Eintrag",
+      copyStudentLink: "Schülerlink kopieren",
 
       // ADD SUBJECT
       subjectName: "Fachname",

@@ -3,163 +3,85 @@ import { useTranslation } from "react-i18next";
 
 import {
   collection,
-  addDoc,
   getDocs,
-  updateDoc,
+  query,
+  where,
   doc,
+  getDoc,
 } from "firebase/firestore";
 
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-
-import { db, storage } from "../firebase";
+import { db } from "../firebase";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 
-function SubjectEntry({ subject, onBack, user }) {
+function StudentEntry({ subjectId }) {
   const { t } = useTranslation();
 
-  const [classwork, setClasswork] = useState("");
-  const [homework, setHomework] = useState("");
-
-  const [classworkFile, setClassworkFile] = useState(null);
-  const [homeworkFile, setHomeworkFile] = useState(null);
-
-  const [classworkPhoto, setClassworkPhoto] = useState("");
-  const [homeworkPhoto, setHomeworkPhoto] = useState("");
-
-  const [entryId, setEntryId] = useState(null);
-
+  const [subject, setSubject] = useState(null);
+  const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-
-  function getTodayDate() {
-    const today = new Date();
-
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
-  }
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    async function loadTodayEntry() {
+    async function loadStudentHistory() {
       try {
         setLoading(true);
+        setError("");
 
-        const querySnapshot = await getDocs(collection(db, "dailyEntries"));
+        // Load the subject document
+        const subjectRef = doc(db, "subjects", subjectId);
+        const subjectSnapshot = await getDoc(subjectRef);
 
-        const today = getTodayDate();
-
-        const existingEntry = querySnapshot.docs
-          .map((entryDoc) => ({
-            id: entryDoc.id,
-            ...entryDoc.data(),
-          }))
-          .find(
-            (entry) =>
-              entry.subjectId === subject.id &&
-              entry.entryDate === today &&
-              entry.ownerId === user?.uid,
-          );
-
-        if (existingEntry) {
-          setEntryId(existingEntry.id);
-          setClasswork(existingEntry.classwork || "");
-          setHomework(existingEntry.homework || "");
-          setClassworkPhoto(existingEntry.classworkPhoto || "");
-          setHomeworkPhoto(existingEntry.homeworkPhoto || "");
+        if (!subjectSnapshot.exists()) {
+          setError("This class could not be found.");
+          return;
         }
+
+        const subjectData = {
+          id: subjectSnapshot.id,
+          ...subjectSnapshot.data(),
+        };
+
+        setSubject(subjectData);
+
+        // Load all entries belonging to this subject and its owner
+        const entriesQuery = query(
+          collection(db, "dailyEntries"),
+          where("subjectId", "==", subjectId),
+          where("ownerId", "==", subjectData.ownerId),
+        );
+
+        const entriesSnapshot = await getDocs(entriesQuery);
+
+        const history = entriesSnapshot.docs.map((entryDoc) => ({
+          id: entryDoc.id,
+          ...entryDoc.data(),
+        }));
+
+        // Newest entries first
+        history.sort((a, b) =>
+          (b.entryDate || "").localeCompare(a.entryDate || ""),
+        );
+
+        setEntries(history);
       } catch (error) {
-        console.error("Error loading today's entry:", error);
+        console.error("Error loading student history:", error);
+        setError(
+          "Could not load the class history. Please check your connection or try again later.",
+        );
       } finally {
         setLoading(false);
       }
     }
 
-    if (subject?.id && user?.uid) {
-      loadTodayEntry();
+    if (subjectId) {
+      loadStudentHistory();
+    } else {
+      setError("Invalid student link.");
+      setLoading(false);
     }
-  }, [subject, user]);
+  }, [subjectId]);
 
-  async function uploadPhoto(file, folder) {
-    if (!file) {
-      return null;
-    }
-
-    const fileName = `${Date.now()}-${file.name}`;
-
-    const storageRef = ref(storage, `${folder}/${subject.id}/${fileName}`);
-
-    await uploadBytes(storageRef, file);
-
-    return await getDownloadURL(storageRef);
-  }
-
-  async function handleSave(e) {
-    e.preventDefault();
-
-    if (!user?.uid) {
-      alert(t("teacherSignInRequired"));
-      return;
-    }
-
-    try {
-      setSaving(true);
-
-      let newClassworkPhoto = classworkPhoto;
-      let newHomeworkPhoto = homeworkPhoto;
-
-      if (classworkFile) {
-        newClassworkPhoto = await uploadPhoto(classworkFile, "classwork");
-      }
-
-      if (homeworkFile) {
-        newHomeworkPhoto = await uploadPhoto(homeworkFile, "homework");
-      }
-
-      const entryData = {
-        subjectId: subject.id,
-        subjectName: subject.name,
-
-        classwork: classwork.trim(),
-        homework: homework.trim(),
-
-        classworkPhoto: newClassworkPhoto || null,
-        homeworkPhoto: newHomeworkPhoto || null,
-
-        entryDate: getTodayDate(),
-
-        ownerId: user.uid,
-
-        createdAt: new Date(),
-      };
-
-      if (entryId) {
-        await updateDoc(doc(db, "dailyEntries", entryId), entryData);
-      } else {
-        const newEntry = await addDoc(
-          collection(db, "dailyEntries"),
-          entryData,
-        );
-
-        setEntryId(newEntry.id);
-      }
-
-      setClassworkPhoto(newClassworkPhoto || "");
-      setHomeworkPhoto(newHomeworkPhoto || "");
-
-      setClassworkFile(null);
-      setHomeworkFile(null);
-
-      alert(t("entrySaved"));
-    } catch (error) {
-      console.error("Error saving entry:", error);
-      alert(t("entrySaveError"));
-    } finally {
-      setSaving(false);
-    }
-  }
-
+  // Loading screen
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 p-6">
@@ -167,12 +89,33 @@ function SubjectEntry({ subject, onBack, user }) {
           <div className="mb-5 flex justify-end">
             <LanguageSwitcher />
           </div>
-          <p className="text-gray-500">{t("loadingTodayEntry")}</p>
+
+          <p className="text-gray-500">Loading class history...</p>
         </div>
       </div>
     );
   }
 
+  // Error screen
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-100 p-6">
+        <div className="mx-auto max-w-4xl rounded-xl bg-white p-6 shadow-sm">
+          <div className="mb-5 flex justify-end">
+            <LanguageSwitcher />
+          </div>
+
+          <h2 className="text-xl font-semibold text-red-600">
+            Unable to load class
+          </h2>
+
+          <p className="mt-3 text-gray-600">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Student class history
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="border-b bg-white">
@@ -181,113 +124,74 @@ function SubjectEntry({ subject, onBack, user }) {
             <LanguageSwitcher />
           </div>
 
-          <button
-            type="button"
-            onClick={onBack}
-            className="mb-4 text-sm font-medium text-slate-600 hover:text-slate-900"
-          >
-            {t("backToSubjects")}
-          </button>
+          <h1 className="text-3xl font-bold text-slate-800">{subject?.name}</h1>
 
-          <h1 className="text-3xl font-bold text-slate-800">{subject.name}</h1>
-
-          <p className="mt-1 text-gray-500">{t("todaysClassworkHomework")}</p>
+          <p className="mt-2 text-gray-500">Classwork and homework history</p>
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl px-6 py-8">
-        <form onSubmit={handleSave}>
-          <div className="grid gap-6 md:grid-cols-2">
-            <section className="rounded-xl bg-white p-6 shadow-sm">
-              <h2 className="text-xl font-semibold text-slate-800">
-                {t("classwork")}
-              </h2>
-
-              <p className="mt-1 text-sm text-gray-500">{t("learnedToday")}</p>
-
-              <textarea
-                value={classwork}
-                onChange={(e) => setClasswork(e.target.value)}
-                placeholder={t("enterClasswork")}
-                rows={8}
-                className="mt-4 w-full rounded-lg border border-gray-300 p-4 outline-none focus:border-slate-500"
-              />
-
-              <label className="mt-5 block text-sm font-medium text-gray-700">
-                {t("classworkPhoto")}
-              </label>
-
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setClassworkFile(e.target.files?.[0] || null)}
-                className="mt-2 block w-full text-sm text-gray-600"
-              />
-
-              {classworkPhoto && (
-                <img
-                  src={classworkPhoto}
-                  alt={t("classworkPhoto")}
-                  className="mt-4 h-32 w-32 rounded-lg border object-cover"
-                />
-              )}
-            </section>
-
-            <section className="rounded-xl bg-white p-6 shadow-sm">
-              <h2 className="text-xl font-semibold text-slate-800">
-                {t("homework")}
-              </h2>
-
-              <p className="mt-1 text-sm text-gray-500">
-                {t("homeworkDescription")}
-              </p>
-
-              <textarea
-                value={homework}
-                onChange={(e) => setHomework(e.target.value)}
-                placeholder={t("enterHomework")}
-                rows={8}
-                className="mt-4 w-full rounded-lg border border-gray-300 p-4 outline-none focus:border-slate-500"
-              />
-
-              <label className="mt-5 block text-sm font-medium text-gray-700">
-                {t("homeworkPhoto")}
-              </label>
-
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setHomeworkFile(e.target.files?.[0] || null)}
-                className="mt-2 block w-full text-sm text-gray-600"
-              />
-
-              {homeworkPhoto && (
-                <img
-                  src={homeworkPhoto}
-                  alt={t("homeworkPhoto")}
-                  className="mt-4 h-32 w-32 rounded-lg border object-cover"
-                />
-              )}
-            </section>
+      <main className="mx-auto max-w-4xl space-y-6 px-6 py-8">
+        {entries.length === 0 ? (
+          <div className="rounded-xl bg-white p-8 text-center shadow-sm">
+            <p className="text-gray-500">
+              No class entries have been added yet.
+            </p>
           </div>
-
-          <div className="mt-6 rounded-xl bg-white p-6 shadow-sm">
-            <button
-              type="submit"
-              disabled={saving}
-              className="rounded-lg bg-slate-800 px-6 py-3 font-medium text-white hover:bg-slate-700 disabled:opacity-50"
+        ) : (
+          entries.map((entry) => (
+            <article
+              key={entry.id}
+              className="rounded-xl bg-white p-6 shadow-sm"
             >
-              {saving
-                ? t("saving")
-                : entryId
-                  ? t("updateTodayEntry")
-                  : t("saveTodayEntry")}
-            </button>
-          </div>
-        </form>
+              <h2 className="mb-5 text-xl font-semibold text-slate-800">
+                {entry.entryDate || "Date unavailable"}
+              </h2>
+
+              <div className="grid gap-6 md:grid-cols-2">
+                {/* Classwork */}
+                <section>
+                  <h3 className="text-lg font-semibold text-slate-800">
+                    Classwork
+                  </h3>
+
+                  <p className="mt-2 whitespace-pre-wrap text-gray-700">
+                    {entry.classwork || "No classwork added."}
+                  </p>
+
+                  {entry.classworkPhoto && (
+                    <img
+                      src={entry.classworkPhoto}
+                      alt="Classwork"
+                      className="mt-4 max-h-72 w-full rounded-lg border object-contain"
+                    />
+                  )}
+                </section>
+
+                {/* Homework */}
+                <section>
+                  <h3 className="text-lg font-semibold text-slate-800">
+                    Homework
+                  </h3>
+
+                  <p className="mt-2 whitespace-pre-wrap text-gray-700">
+                    {entry.homework || "No homework added."}
+                  </p>
+
+                  {entry.homeworkPhoto && (
+                    <img
+                      src={entry.homeworkPhoto}
+                      alt="Homework"
+                      className="mt-4 max-h-72 w-full rounded-lg border object-contain"
+                    />
+                  )}
+                </section>
+              </div>
+            </article>
+          ))
+        )}
       </main>
     </div>
   );
 }
 
-export default SubjectEntry;
+export default StudentEntry;
