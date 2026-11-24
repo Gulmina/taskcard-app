@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -19,7 +20,9 @@ function AddSubject({ onAddSubject, onCancel }) {
 
   return (
     <div className="max-w-md rounded-xl bg-white p-6 shadow-md">
-      <h3 className="mb-4 text-xl font-semibold">{t("addSubject")}</h3>
+      <h3 className="mb-4 text-xl font-semibold">
+        {t("addSubject")}
+      </h3>
 
       <form onSubmit={handleSubmit}>
         <label className="mb-2 block text-sm font-medium text-gray-700">
