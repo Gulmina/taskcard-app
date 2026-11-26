@@ -1,9 +1,10 @@
+
 import { useEffect, useState } from "react";
+import FeedbackForm from "./FeedbackForm";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
-
 import { db } from "../firebase";
 
 import AddSubject from "./AddSubject";
@@ -239,7 +240,9 @@ function Dashboard({ user }) {
               {t("teacherLogin")}
             </button>
 
-            <p className="mt-5 text-sm text-gray-400">{t("studentLinkInfo")}</p>
+            <p className="mt-5 text-sm text-gray-400">
+              {t("studentLinkInfo")}
+            </p>
           </div>
         </main>
       </div>
@@ -383,7 +386,9 @@ function Dashboard({ user }) {
 
                         <span className="text-3xl font-bold text-slate-800">
                           {entry.entryDate
-                            ? new Date(`${entry.entryDate}T00:00:00`).getDate()
+                            ? new Date(
+                                `${entry.entryDate}T00:00:00`,
+                              ).getDate()
                             : "--"}
                         </span>
                       </div>
@@ -524,6 +529,11 @@ function Dashboard({ user }) {
             </div>
           )}
         </section>
+
+        {/* CONTACT & FEEDBACK */}
+
+        <FeedbackForm user={user} />
+
       </main>
 
       {/* PHOTO PREVIEW MODAL */}
@@ -554,7 +564,9 @@ function Dashboard({ user }) {
 
             <div className="printable-photo bg-white p-8">
               <div className="print-header mb-6 text-center">
-                <h1 className="text-3xl font-bold text-gray-900">TaskCard</h1>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  TaskCard
+                </h1>
 
                 <h2 className="mt-2 text-2xl font-bold text-gray-800">
                   {selectedPhoto.subject}

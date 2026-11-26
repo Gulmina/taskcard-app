@@ -123,6 +123,27 @@ const resources = {
         "Could not create the account or send verification email. Please try again.",
       accountCreatedVerification:
         "Account created! Please check your email and click the verification link before signing in. Also check your spam folder.",
+
+      // FEEDBACK FORM
+      feedbackTitle: "Contact & Feedback",
+      feedbackDescription:
+        "Have an idea, suggestion, or problem? I'd love to hear from you!",
+      feedbackName: "Your name",
+      feedbackNamePlaceholder: "Enter your name",
+      feedbackEmail: "Your email address",
+      feedbackCategory: "Feedback type",
+      feedbackSuggestion: "Suggestion",
+      feedbackFeature: "Feature Request",
+      feedbackBug: "Bug Report",
+      feedbackOther: "Other",
+      feedbackMessage: "Your message",
+      feedbackMessagePlaceholder: "Write your feedback here...",
+      feedbackSuccess: "Thank you! Your feedback has been sent.",
+      feedbackError:
+        "Sorry, your feedback could not be sent. Please try again.",
+      feedbackSending: "Sending...",
+      feedbackSend: "Send Feedback",
+
     },
   },
 
@@ -254,6 +275,27 @@ const resources = {
         "Das Konto oder die Bestätigungs-E-Mail konnte nicht erstellt bzw. gesendet werden. Bitte versuche es erneut.",
       accountCreatedVerification:
         "Konto erstellt! Bitte prüfe deine E-Mails und klicke auf den Bestätigungslink, bevor du dich anmeldest. Prüfe auch deinen Spam-Ordner.",
+
+      // FEEDBACK FORM
+      feedbackTitle: "Kontakt & Feedback",
+      feedbackDescription:
+        "Hast du eine Idee, einen Vorschlag oder ein Problem? Ich freue mich auf deine Nachricht!",
+      feedbackName: "Dein Name",
+      feedbackNamePlaceholder: "Gib deinen Namen ein",
+      feedbackEmail: "Deine E-Mail-Adresse",
+      feedbackCategory: "Art des Feedbacks",
+      feedbackSuggestion: "Vorschlag",
+      feedbackFeature: "Funktionswunsch",
+      feedbackBug: "Fehler melden",
+      feedbackOther: "Sonstiges",
+      feedbackMessage: "Deine Nachricht",
+      feedbackMessagePlaceholder: "Schreibe hier dein Feedback...",
+      feedbackSuccess: "Vielen Dank! Dein Feedback wurde gesendet.",
+      feedbackError:
+        "Dein Feedback konnte leider nicht gesendet werden. Bitte versuche es erneut.",
+      feedbackSending: "Wird gesendet...",
+      feedbackSend: "Feedback senden",
+
     },
   },
 };
