@@ -143,6 +143,16 @@ const resources = {
         "Sorry, your feedback could not be sent. Please try again.",
       feedbackSending: "Sending...",
       feedbackSend: "Send Feedback",
+      // STUDENT HISTORY PAGE
+studentHistoryTitle: "Classwork and homework history",
+studentLoadingHistory: "Loading class history...",
+studentClassNotFound: "This class could not be found.",
+studentHistoryLoadError:
+  "Could not load the class history. Please check your connection or try again later.",
+studentInvalidLink: "Invalid student link.",
+studentUnableToLoad: "Unable to load class",
+studentNoEntries: "No class entries have been added yet.",
+studentDateUnavailable: "Date unavailable",
 
     },
   },
@@ -161,6 +171,17 @@ const resources = {
       language: "Sprache",
       todaysEntry: "Heutiger Eintrag",
       copyStudentLink: "Schülerlink kopieren",
+
+      // STUDENT HISTORY PAGE
+studentHistoryTitle: "Verlauf der Unterrichts- und Hausaufgaben",
+studentLoadingHistory: "Klassenverlauf wird geladen...",
+studentClassNotFound: "Diese Klasse konnte nicht gefunden werden.",
+studentHistoryLoadError:
+  "Der Klassenverlauf konnte nicht geladen werden. Bitte überprüfe deine Internetverbindung oder versuche es später erneut.",
+studentInvalidLink: "Ungültiger Schülerlink.",
+studentUnableToLoad: "Klasse konnte nicht geladen werden",
+studentNoEntries: "Es wurden noch keine Unterrichtseinträge hinzugefügt.",
+studentDateUnavailable: "Datum nicht verfügbar",
 
       // ADD SUBJECT
       subjectName: "Fachname",

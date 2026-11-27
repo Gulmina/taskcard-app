@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -194,10 +195,36 @@ function SubjectEntry({ subject, onBack, user }) {
       return;
     }
 
-    const studentLink = `${window.location.origin}/student/${entryId}`;
+    // IMPORTANT:
+    // The public student page uses the SUBJECT ID,
+    // not the daily entry ID.
+    const studentLink = `${window.location.origin}/student/class/${subject.id}`;
 
     try {
-      await navigator.clipboard.writeText(studentLink);
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(studentLink);
+      } else {
+        // Fallback for browsers where clipboard API is unavailable
+        const textArea = document.createElement("textarea");
+
+        textArea.value = studentLink;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        textArea.style.top = "0";
+
+        document.body.appendChild(textArea);
+
+        textArea.focus();
+        textArea.select();
+
+        const successful = document.execCommand("copy");
+
+        document.body.removeChild(textArea);
+
+        if (!successful) {
+          throw new Error("Clipboard copy failed");
+        }
+      }
 
       setCopied(true);
 
@@ -250,7 +277,9 @@ function SubjectEntry({ subject, onBack, user }) {
               {subject.name}
             </h1>
 
-            <p className="mt-1 text-gray-500">{t("todaysClassworkHomework")}</p>
+            <p className="mt-1 text-gray-500">
+              {t("todaysClassworkHomework")}
+            </p>
           </div>
 
           <LanguageSwitcher />
@@ -269,7 +298,9 @@ function SubjectEntry({ subject, onBack, user }) {
                 {t("classwork")}
               </h2>
 
-              <p className="mt-1 text-sm text-gray-500">{t("learnedToday")}</p>
+              <p className="mt-1 text-sm text-gray-500">
+                {t("learnedToday")}
+              </p>
 
               <textarea
                 value={classwork}
@@ -286,7 +317,9 @@ function SubjectEntry({ subject, onBack, user }) {
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => setClassworkFile(e.target.files?.[0] || null)}
+                onChange={(e) =>
+                  setClassworkFile(e.target.files?.[0] || null)
+                }
                 className="mt-2 block w-full text-sm text-gray-600"
               />
 
@@ -325,7 +358,9 @@ function SubjectEntry({ subject, onBack, user }) {
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => setHomeworkFile(e.target.files?.[0] || null)}
+                onChange={(e) =>
+                  setHomeworkFile(e.target.files?.[0] || null)
+                }
                 className="mt-2 block w-full text-sm text-gray-600"
               />
 
@@ -365,7 +400,9 @@ function SubjectEntry({ subject, onBack, user }) {
                 disabled={!entryId}
                 className="rounded-lg border border-blue-300 bg-blue-50 px-6 py-3 font-medium text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {copied ? t("studentLinkCopied") : `🔗 ${t("copyStudentLink")}`}
+                {copied
+                  ? t("studentLinkCopied")
+                  : `🔗 ${t("copyStudentLink")}`}
               </button>
             </div>
 

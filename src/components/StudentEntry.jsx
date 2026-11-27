@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -11,10 +12,10 @@ import {
 } from "firebase/firestore";
 
 import { db } from "../firebase";
-import LanguageSwitcher from "../components/LanguageSwitcher";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 function StudentEntry({ subjectId }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [subject, setSubject] = useState(null);
   const [entries, setEntries] = useState([]);
@@ -32,7 +33,7 @@ function StudentEntry({ subjectId }) {
         const subjectSnapshot = await getDoc(subjectRef);
 
         if (!subjectSnapshot.exists()) {
-          setError("This class could not be found.");
+          setError("studentClassNotFound");
           return;
         }
 
@@ -65,9 +66,7 @@ function StudentEntry({ subjectId }) {
         setEntries(history);
       } catch (error) {
         console.error("Error loading student history:", error);
-        setError(
-          "Could not load the class history. Please check your connection or try again later.",
-        );
+        setError("studentHistoryLoadError");
       } finally {
         setLoading(false);
       }
@@ -76,10 +75,27 @@ function StudentEntry({ subjectId }) {
     if (subjectId) {
       loadStudentHistory();
     } else {
-      setError("Invalid student link.");
+      setError("studentInvalidLink");
       setLoading(false);
     }
   }, [subjectId]);
+
+  // Format date according to selected language
+  function formatDate(dateString) {
+    if (!dateString) {
+      return t("studentDateUnavailable");
+    }
+
+    const date = new Date(`${dateString}T00:00:00`);
+
+    const locale = i18n.language.startsWith("de") ? "de-DE" : "en-GB";
+
+    return date.toLocaleDateString(locale, {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  }
 
   // Loading screen
   if (loading) {
@@ -90,7 +106,9 @@ function StudentEntry({ subjectId }) {
             <LanguageSwitcher />
           </div>
 
-          <p className="text-gray-500">Loading class history...</p>
+          <p className="text-gray-500">
+            {t("studentLoadingHistory")}
+          </p>
         </div>
       </div>
     );
@@ -106,10 +124,10 @@ function StudentEntry({ subjectId }) {
           </div>
 
           <h2 className="text-xl font-semibold text-red-600">
-            Unable to load class
+            {t("studentUnableToLoad")}
           </h2>
 
-          <p className="mt-3 text-gray-600">{error}</p>
+          <p className="mt-3 text-gray-600">{t(error)}</p>
         </div>
       </div>
     );
@@ -124,9 +142,13 @@ function StudentEntry({ subjectId }) {
             <LanguageSwitcher />
           </div>
 
-          <h1 className="text-3xl font-bold text-slate-800">{subject?.name}</h1>
+          <h1 className="text-3xl font-bold text-slate-800">
+            {subject?.name}
+          </h1>
 
-          <p className="mt-2 text-gray-500">Classwork and homework history</p>
+          <p className="mt-2 text-gray-500">
+            {t("studentHistoryTitle")}
+          </p>
         </div>
       </header>
 
@@ -134,7 +156,7 @@ function StudentEntry({ subjectId }) {
         {entries.length === 0 ? (
           <div className="rounded-xl bg-white p-8 text-center shadow-sm">
             <p className="text-gray-500">
-              No class entries have been added yet.
+              {t("studentNoEntries")}
             </p>
           </div>
         ) : (
@@ -144,43 +166,45 @@ function StudentEntry({ subjectId }) {
               className="rounded-xl bg-white p-6 shadow-sm"
             >
               <h2 className="mb-5 text-xl font-semibold text-slate-800">
-                {entry.entryDate || "Date unavailable"}
+                {formatDate(entry.entryDate)}
               </h2>
 
               <div className="grid gap-6 md:grid-cols-2">
-                {/* Classwork */}
+                {/* CLASSWORK */}
+
                 <section>
                   <h3 className="text-lg font-semibold text-slate-800">
-                    Classwork
+                    {t("classworkLabel")}
                   </h3>
 
                   <p className="mt-2 whitespace-pre-wrap text-gray-700">
-                    {entry.classwork || "No classwork added."}
+                    {entry.classwork || t("noClasswork")}
                   </p>
 
                   {entry.classworkPhoto && (
                     <img
                       src={entry.classworkPhoto}
-                      alt="Classwork"
+                      alt={t("classworkPhoto")}
                       className="mt-4 max-h-72 w-full rounded-lg border object-contain"
                     />
                   )}
                 </section>
 
-                {/* Homework */}
+                {/* HOMEWORK */}
+
                 <section>
                   <h3 className="text-lg font-semibold text-slate-800">
-                    Homework
+                    {t("homeworkLabel")}
                   </h3>
 
                   <p className="mt-2 whitespace-pre-wrap text-gray-700">
-                    {entry.homework || "No homework added."}
+                    {entry.homework || t("noHomework")}
                   </p>
 
                   {entry.homeworkPhoto && (
                     <img
                       src={entry.homeworkPhoto}
-                      alt="Homework"
+                      alt={t("homeworkPhoto")}
                       className="mt-4 max-h-72 w-full rounded-lg border object-contain"
                     />
                   )}
